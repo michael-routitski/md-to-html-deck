@@ -10,6 +10,8 @@ The important minimum markdown format requirements are
 - front matter contains custom theme, header/footer text and mermaid config for drawing diagrams.
 - the ruler marker `---` act as deck slide sepatator. 
 
+To see what a basic sample output looks like, download and open `samples/simple-test/presentation.html` in the browser. Use arrows to go back and forward. It's produced from `samples/simple-test/presentation.md` source
+
 ## Detalied spec is avaiable
 
 If you want to rebuild this is a different language, the full SPEC file is at `md-slide-compiler/SPEC.md`. 
