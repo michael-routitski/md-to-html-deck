@@ -1,0 +1,34 @@
+/* Sample override: dark technical palette; structurally compatible with base.css. */
+section {
+  background: #101c30;
+  color: #e9f1fc;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(11px, 1.62cqw, 30px);
+  line-height: 1.38;
+}
+h1, h2, h3 { margin: 0 0 .55em; line-height: 1.15; letter-spacing: -.028em; }
+h1 { font-size: 3.85cqw; color: #83dbfb; }
+h2 { font-size: 2.8cqw; color: #a4c9ff; }
+h3 { font-size: 2.1cqw; color: #a4c9ff; }
+p, ul, ol, blockquote { margin: 0 0 .65em; }
+ul, ol { padding-left: 1.35em; }
+li { margin: .12em 0; }
+strong { color: #ffffff; }
+a { color: #86d4fb; }
+hr { border: 0; border-top: 1px solid #395475; margin: .7em 0; }
+blockquote { border-left: .22em solid #38bdf8; padding-left: .8em; color: #b8d4e9; }
+pre { margin: .45em 0; padding: .7em .9em; background: #080f1d; color: #d8edfc; border: 1px solid #24415d; border-radius: .3em; overflow: hidden; font-size: .75em; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+p code, li code { padding: .1em .22em; background: #233b57; border-radius: .18em; }
+pre.mermaid { background: transparent; border: 0; color: inherit; }
+header, footer { color: #8ca8c6; font-size: 1.05cqw; }
+footer { padding-right: 3em; }
+section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); position: absolute; right: var(--slide-padding-x); bottom: var(--slide-padding-y); color: #8ca8c6; font-size: 1.05cqw; }
+table { width: 100%; border-collapse: collapse; margin: .5em 0; font-size: .82em; }
+th, td { text-align: left; border: 1px solid #335270; padding: .35em .6em; }
+th { background: #193651; }
+.token.comment { color: #708ba6; }
+.token.keyword { color: #90c6fe; }
+.token.string { color: #b1e4a5; }
+.token.number { color: #f8c18b; }
+.token.function { color: #ffe3a1; }
