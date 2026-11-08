@@ -1,10 +1,14 @@
-# Markdown Slide Compiler
+# Markdown to HTML Side Compiler
 
 ## Overview
 
 Compile a Markdown presentation into a standalone HTML deck.
 
-Slides are written in standard GitHub-Flavored Markdown with YAML frontmatter. Paired comment delimiters (`<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->`) can be used to structure card content while preserving natural document flow.
+Slides are written in standard GitHub-Flavored Markdown with YAML frontmatter. 
+
+Support for Cards:
+
+Paired comment delimiters (`<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->`) can be used to structure card content while preserving natural document flow.
 
 The important minimum markdown format requirements are 
 - front matter contains custom theme, header/footer text and mermaid config for drawing diagrams.
