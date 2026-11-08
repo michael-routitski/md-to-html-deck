@@ -211,6 +211,7 @@ class HtmlTokens:
     def __init__(self, deck: Deck, root: Path, slide_number: int, line: int, image_cache: dict):
         self.deck, self.root, self.slide_number, self.line = deck, root, slide_number, line
         self.image_cache = image_cache
+        self.container_stack: list[str] = []
 
     def _text(self, tokens) -> str:
         return "".join(t.get("raw", "") if t["type"] in {"text", "codespan"} else self._text(t.get("children", [])) for t in tokens)
@@ -218,8 +219,6 @@ class HtmlTokens:
     def _image(self, token) -> str:
         uri = _clean_url(token.get("attrs", {}).get("url", ""), is_image=True)
         alt = self._text(token.get("children", []))
-        if alt.strip().lower() == "bg":
-            raise SourceError("E_MARP_DIRECTIVE", "Marp background-image modifiers are not supported")
         local = unquote(uri)
         file = (self.root / local).resolve()
         if not file.is_relative_to(self.root.resolve()):
@@ -237,15 +236,38 @@ class HtmlTokens:
         extra = f' title="{escape(title, quote=True)}"' if title else ""
         return f'<img src="{self.image_cache[file]}" alt="{escape(alt, quote=True)}"{extra}>'
 
-    def _html_comment(self, raw: str) -> bool:
+    def _render_comment_or_container(self, raw: str) -> str:
+        match = re.fullmatch(r"\s*<!--\s*(/?\w+)\s*-->\s*", raw)
+        if match:
+            tag = match.group(1).lower()
+            if tag == "cards":
+                self.container_stack.append("cards")
+                return '<div class="cards">\n'
+            elif tag == "/cards":
+                if not self.container_stack or self.container_stack[-1] != "cards":
+                    raise SourceError("E_UNCLOSED_CONTAINER", f"Slide {self.slide_number}: mismatched or unexpected '<!-- /cards -->' tag")
+                self.container_stack.pop()
+                return "</div>\n"
+            elif tag == "card":
+                self.container_stack.append("card")
+                return '<div class="card">\n'
+            elif tag == "/card":
+                if not self.container_stack or self.container_stack[-1] != "card":
+                    raise SourceError("E_UNCLOSED_CONTAINER", f"Slide {self.slide_number}: mismatched or unexpected '<!-- /card -->' tag")
+                self.container_stack.pop()
+                return "</div>\n"
         if re.fullmatch(r"\s*<!--(?:.|\n)*?-->\s*", raw):
-            if re.search(r"<!--\s*_?(?:class|background|header|footer|paginate|theme)\s*:", raw, re.I):
-                raise SourceError("E_MARP_DIRECTIVE", "Marpit inline comment directives are unsupported")
-            return True
-        return False
+            return ""
+        raise SourceError("E_RAW_HTML", f"Slide {self.slide_number}: raw HTML is not supported")
 
     def render_many(self, tokens) -> str:
-        return "".join(self.render(token) for token in tokens)
+        out = "".join(self.render(token) for token in tokens)
+        return out
+
+    def finish(self) -> None:
+        if self.container_stack:
+            unclosed = self.container_stack[-1]
+            raise SourceError("E_UNCLOSED_CONTAINER", f"Slide {self.slide_number}: unclosed container '<!-- {unclosed} -->'")
 
     def render(self, t: dict) -> str:
         typ = t["type"]
@@ -305,9 +327,7 @@ class HtmlTokens:
             if result.mermaid: self.deck.has_mermaid = True
             return result.html
         if typ in {"block_html", "inline_html"}:
-            if self._html_comment(t.get("raw", "")):
-                return ""
-            raise SourceError("E_RAW_HTML", f"Slide {self.slide_number}: raw HTML is not supported")
+            return self._render_comment_or_container(t.get("raw", ""))
         raise SourceError("E_MARKDOWN_UNSUPPORTED", f"Slide {self.slide_number}: unsupported Markdown syntax ({typ})")
 
 
@@ -325,7 +345,9 @@ def parse_deck(source: str, directory: Path) -> Deck:
     for slide_no, (segment, line) in enumerate(segments, 1):
         try:
             tokens = parser(segment)
-            rendered = HtmlTokens(deck, directory, slide_no, line, cache).render_many(tokens)
+            renderer = HtmlTokens(deck, directory, slide_no, line, cache)
+            rendered = renderer.render_many(tokens)
+            renderer.finish()
             if not rendered.strip():
                 raise SourceError("E_EMPTY_SLIDE", f"Slide {slide_no} contains no renderable content", line)
             deck.slides.append(rendered)

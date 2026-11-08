@@ -7,7 +7,7 @@ description: Create, style, improve and troubleshoot Markdown presentation decks
 
 ## Mission
 
-Act as a **deck creation assistant and CSS theme specialist** for this project's deterministic Markdown-to-HTML slide compiler. Deliver clean, legible, maintainable Markdown slides and small semantic CSS themes. Prefer editing presentation content/styles over changing compiler code. Never assume full Marp/Marpit compatibility merely because HTML uses `.marpit` and `<section>`.
+Act as a **deck creation assistant and CSS theme specialist** for this project's deterministic Markdown-to-HTML slide compiler. Deliver clean, legible, maintainable Markdown slides and small semantic CSS themes. Prefer editing presentation content/styles over changing compiler code. The compiler uses its own clean presentation structure (`.deck` and `section.slide`) and is not compatible with Marp/Marpit.
 
 At session start:
 
@@ -69,7 +69,7 @@ print("Hello slides")
 
 Rules that prevent common failures:
 
-- Do **not** write raw HTML, Marpit comment directives, per-slide CSS classes, unnamed code fences or indented code blocks. Use YAML frontmatter for global `header`, `footer`, `paginate`, `mermaid.theme`, and optional `layout`/`theme`.
+- Do **not** write arbitrary raw HTML, legacy Marp/Marpit comment directives, per-slide CSS classes, unnamed code fences or indented code blocks. Paired comment delimiters `<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->` are supported for structured card layouts. Use YAML frontmatter for global `header`, `footer`, `paginate`, `mermaid.theme`, and optional `layout`/`theme`.
 - Include a **language identifier on every fenced block**. `txt`, `text`, or `plaintext` intentionally becomes plain `<pre>`. Supported source tags include `python`/`py`, `csharp`/`cs`, `java`, `cpp`/`c++`, `javascript`/`js`, `typescript`/`ts`, `sql`, `bash`, `powershell`, `json`, `yaml` and others defined in the *current* `code_fences.py` registry. An unknown labelled language generates a warning and plain text; do not assume it will be highlighted.
 - Mermaid fences must be exactly `mermaid` and contain **only Mermaid source**, without HTML or per-diagram init directives. Configure the Mermaid theme globally through `mermaid: { theme: default|dark|forest|neutral|base }`. Client-side rendering needs the pinned Mermaid CDN; parse/render errors occur in the browser console.
 - Local Markdown images use `![Meaningful alt text](relative-file.png)`, with paths relative to the Markdown file. JPEG, PNG, SVG, WebP and GIF are supported and embedded as data URLs. Use simple portable filenames; don't add remote Markdown image URLs. SVG inputs are security-validated and may reject embedded executable/external content.
@@ -87,9 +87,9 @@ Rules that prevent common failures:
 
 The compiler embeds layout CSS first, then theme CSS. If asked for a **new visual theme only**, create or edit `theme.css`, keeping the current working base CSS. If asked for an explicitly different layout framework, explain the compatibility impact before altering `base.css`.
 
-Prefer low-specificity **semantic** selectors: `section`, `h1`–`h6`, `p`, `ul`, `ol`, `li`, `blockquote`, `table`, `th`, `td`, `pre`, `code`, `img`, `pre.mermaid`, `.mermaid svg`, `header`, `footer`, `section[data-marpit-pagination]::after`, and Prism `.token.*`. Do not add `.slide-content`/`.card` wrappers or invent slide-level markup conventions.
+Prefer low-specificity **semantic** selectors: `section`, `.slide`, `.cards`, `.card`, `h1`–`h6`, `p`, `ul`, `ol`, `li`, `blockquote`, `table`, `th`, `td`, `pre`, `code`, `img`, `pre.mermaid`, `.mermaid svg`, `header`, `footer`, `section[data-page]::after`, and Prism `.token.*`.
 
-Use **container-responsive type** where practicable (`cqw`, `cqh`, and `clamp()`). Reserve header/footer space and keep the pagination marker legible; pagination uses `data-marpit-pagination` attributes and a CSS pseudo-element when enabled. Check contrast, line-height, table width, long URLs and code line lengths. CSS has to style plain text fences, Prism code fences and Mermaid containers separately.
+Use **container-responsive type** where practicable (`cqw`, `cqh`, and `clamp()`). Reserve header/footer space and keep the pagination marker legible; pagination uses `data-page` attributes and a CSS pseudo-element when enabled. Check contrast, line-height, table width, long URLs and code line lengths. CSS has to style plain text fences, Prism code fences and Mermaid containers separately.
 
 ## Practical deck-design heuristics
 

@@ -23,7 +23,7 @@ p code, li code { padding: .1em .22em; background: #233b57; border-radius: .18em
 pre.mermaid { background: transparent; border: 0; color: inherit; }
 header, footer { color: #8ca8c6; font-size: 1.05cqw; }
 footer { padding-right: 3em; }
-section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); position: absolute; right: var(--slide-padding-x); bottom: var(--slide-padding-y); color: #8ca8c6; font-size: 1.05cqw; }
+section[data-page]::after { content: attr(data-page); position: absolute; right: var(--slide-padding-x); bottom: var(--slide-padding-y); color: #8ca8c6; font-size: 1.05cqw; }
 table { width: 100%; border-collapse: collapse; margin: .5em 0; font-size: .82em; }
 th, td { text-align: left; border: 1px solid #335270; padding: .35em .6em; }
 th { background: #193651; }

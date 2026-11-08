@@ -14,8 +14,8 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-.marpit { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; background: #101824; }
-.marpit > section {
+.deck { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; background: #101824; }
+.deck > section.slide {
   grid-area: 1 / 1;
   position: relative;
   width: min(100vw, 177.777778vh);
@@ -30,7 +30,7 @@ html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
   visibility: hidden;
   pointer-events: none;
 }
-.marpit > section[data-active="true"] { visibility: visible; pointer-events: auto; }
+.deck > section.slide[data-active="true"] { visibility: visible; pointer-events: auto; }
 section > header, section > footer { position: absolute; left: var(--slide-padding-x); right: var(--slide-padding-x); }
 section > header { top: var(--slide-padding-y); }
 section > footer { bottom: var(--slide-padding-y); }
@@ -65,7 +65,7 @@ p code, li code { padding: .1em .22em; background: #233b57; border-radius: .18em
 pre.mermaid { background: transparent; border: 0; color: inherit; }
 header, footer { color: #8ca8c6; font-size: 1.05cqw; }
 footer { padding-right: 3em; }
-section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); position: absolute; right: var(--slide-padding-x); bottom: var(--slide-padding-y); color: #8ca8c6; font-size: 1.05cqw; }
+section[data-page]::after { content: attr(data-page); position: absolute; right: var(--slide-padding-x); bottom: var(--slide-padding-y); color: #8ca8c6; font-size: 1.05cqw; }
 table { width: 100%; border-collapse: collapse; margin: .5em 0; font-size: .82em; }
 th, td { text-align: left; border: 1px solid #335270; padding: .35em .6em; }
 th { background: #193651; }
@@ -81,8 +81,8 @@ th { background: #193651; }
   <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
 </head>
 <body>
-  <div class="marpit">
-    <section data-marpit-pagination="1" data-marpit-pagination-total="3" data-active="true">
+  <div class="deck">
+    <section class="slide" data-page="1" data-total-pages="3" data-active="true">
       <header>MARKDOWN SLIDE COMPILER</header>
 <h1>Markdown → HTML Slides</h1>
 <p>A tiny <strong>deterministic</strong> compiler. One command produces one HTML presentation.</p>
@@ -93,7 +93,7 @@ th { background: #193651; }
 </ul>
       <footer>Example presentation</footer>
     </section>
-    <section data-marpit-pagination="2" data-marpit-pagination-total="3">
+    <section class="slide" data-page="2" data-total-pages="3">
       <header>MARKDOWN SLIDE COMPILER</header>
 <h2>The pipeline</h2>
 <p>Two boxes connected by a single arrow:</p>
@@ -102,7 +102,7 @@ th { background: #193651; }
 </pre>
       <footer>Example presentation</footer>
     </section>
-    <section data-marpit-pagination="3" data-marpit-pagination-total="3">
+    <section class="slide" data-page="3" data-total-pages="3">
       <header>MARKDOWN SLIDE COMPILER</header>
 <h2>Code and content</h2>
 <p>A Python code fence gets <strong>Prism</strong> highlighting automatically:</p>
@@ -126,7 +126,7 @@ print(Path("presentation.html").exists())
 
 (() => {
   'use strict';
-  const slides = [...document.querySelectorAll('.marpit > section')];
+  const slides = [...document.querySelectorAll('.deck > section.slide')];
   let current = 0;
   let scheduled = false;
   const diagnostic = (level, code, slide, message) => {
@@ -298,7 +298,7 @@ print(Path("presentation.html").exists())
         try { await mermaid.run({ nodes: [node] }); }
         catch (err) {
           node.textContent = original;
-          const slide = [...document.querySelectorAll('.marpit > section')].indexOf(node.closest('section')) + 1;
+          const slide = [...document.querySelectorAll('.deck > section.slide')].indexOf(node.closest('section')) + 1;
           runtime.diagnostic('error', 'E_MERMAID_RENDER', slide, String(err));
         }
       }

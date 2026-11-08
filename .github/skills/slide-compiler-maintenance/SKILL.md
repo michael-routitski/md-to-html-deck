@@ -7,7 +7,7 @@ description: Diagnose, debug, test and safely modify this project's deterministi
 
 ## Mission and source of truth
 
-Maintain the **small, deterministic Markdown-to-static-HTML presentation compiler**. Prefer a small, reproducible fix over architectural expansion. The system is deliberately not Marpit, a general-purpose presentation framework, an AI-backed generator, a Node build pipeline or a web server.
+Maintain the **small, deterministic Markdown-to-static-HTML presentation compiler**. Prefer a small, reproducible fix over architectural expansion. The system is deliberately not a general-purpose presentation framework, an AI-backed generator, a Node build pipeline or a web server.
 
 At session start:
 
@@ -34,8 +34,8 @@ At session start:
 - CLI: `python compile.py /path/to/presentation.md`; output is sibling `presentation.html`. No extra mandatory arguments. The current implementation uses `mistune`, `PyYAML`, and `tinycss2`; install pinned dependencies from `requirements.txt`.
 - Input has YAML frontmatter. `layout` and `theme` are **optional independent overrides**. If omitted, resolve `base.css` or `theme.css` from the compiler installation directory. If explicitly supplied, resolve each relative to the Markdown file; an invalid or missing explicit CSS file is fatal, never silently defaulted.
 - Only standalone `---` outside frontmatter and fenced code separates slides. Markdown is GFM-oriented. Do not treat Mermaid diagram syntax as Markdown slide delimiters.
-- No raw HTML in Markdown. No per-slide styling directives or arbitrary Marpit compatibility. Fenced blocks **must have a language**. `txt`/`text`/`plaintext` → escaped `<pre>`; known source language → Prism `<pre><code class="language-...">`; `mermaid` → escaped `<pre class="mermaid">` (no Prism); unknown *labelled* language → warning and escaped plain text.
-- Preserve semantic `.marpit > section` structure, optional header/footer and Marpit-style pagination attributes. CSS controls browser-responsive 16:9 geometry; do not replace this with an undocumented fixed canvas.
+- No arbitrary raw HTML in Markdown. No per-slide styling directives. Support structured `<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->` container comments. Fenced blocks **must have a language**. `txt`/`text`/`plaintext` → escaped `<pre>`; known source language → Prism `<pre><code class="language-...">`; `mermaid` → escaped `<pre class="mermaid">` (no Prism); unknown *labelled* language → warning and escaped plain text.
+- Preserve semantic `.deck > section.slide` structure, optional header/footer and `data-page` / `data-total-pages` pagination attributes. CSS controls browser-responsive 16:9 geometry; do not replace this with an undocumented fixed canvas.
 - Embed local Markdown JPEG, PNG, SVG, WebP, and GIF images as data URLs. Paths are Markdown-relative; enforce path restrictions and safe SVG handling. CSS may use HTTPS or data URLs but not local `url(...)` or `@import`.
 - Stylesheets are embedded **layout first, theme second**. Do not add structural wrapper elements around slide typography unless a contract change is explicitly approved.
 - Browser runtime shows one slide at a time: Right/PageDown/Space next; Left/PageUp previous; Home/End boundaries. No visible navigation controls. Text is **not** automatically shrunk; images and Mermaid diagrams may be proportionally fit. Runtime diagnostics belong in the browser console.
@@ -61,7 +61,7 @@ python -m pip install -r md-slide-compiler/requirements.txt
 python md-slide-compiler/compile.py my-presentation/presentation.md
 ```
 
-If the compiler directory itself is the repository root, use `python -m pip install -r requirements.txt` and `python compile.py ../my-presentation/presentation.md` instead. Check that the output is a single HTML file, containing `<div class="marpit">`, one `<section>` per slide, two embedded `<style>` blocks, expected Prism language classes, and raw escaped Mermaid definitions inside `<pre class="mermaid">` before client rendering. Re-run compilation and compare SHA-256 hashes of the HTML to detect nondeterminism. Verify that an intentionally missing CSS/image or an unlabelled code fence fails without clobbering the last good output.
+If the compiler directory itself is the repository root, use `python -m pip install -r requirements.txt` and `python compile.py ../my-presentation/presentation.md` instead. Check that the output is a single HTML file, containing `<div class="deck">`, `<section class="slide">` per slide, two embedded `<style>` blocks, expected Prism language classes, and raw escaped Mermaid definitions inside `<pre class="mermaid">` before client rendering. Re-run compilation and compare SHA-256 hashes of the HTML to detect nondeterminism. Verify that an intentionally missing CSS/image or an unlabelled code fence fails without clobbering the last good output.
 
 For visual bugs, open the generated HTML in a current browser and test at 16:9 and non-16:9 viewport sizes. Test first/last slide navigation, font readiness, Mermaid diagrams on initially hidden slides, proportional media fitting, and console overflow warnings. When browser/CDN access is unavailable, report this as a limitation rather than asserting a visual pass.
 

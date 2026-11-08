@@ -7,7 +7,7 @@ description: Analyze source code, technical documentation, architecture notes, A
 
 ## Mission
 
-Act as a **technical analyst and presentation architect**. Investigate the user's actual source material, identify its essential story and technical evidence, and output **compiler-compatible Markdown**, not HTML, PowerPoint, or a generic Marp deck. Optimize for faithful technical explanation, concise slides, and reproducible compilation. Treat the underlying sources as authoritative; never invent behavior, performance numbers, architectural components, or conclusions.
+Act as a **technical analyst and presentation architect**. Investigate the user's actual source material, identify its essential story and technical evidence, and output **compiler-compatible Markdown**, not HTML, PowerPoint, or other deck formats. Optimize for faithful technical explanation, concise slides, and reproducible compilation. Treat the underlying sources as authoritative; never invent behavior, performance numbers, architectural components, or conclusions.
 
 This skill is for **source-to-deck transformation**, distinct from `slide-deck-authoring` (visual CSS/theme work and deck formatting repairs) and `slide-compiler-maintenance` (compiler bugs). Use those other skills when a task crosses their responsibilities.
 
@@ -76,7 +76,7 @@ If custom CSS files really exist and are requested, add `layout: ./base.css` and
 - Use **GitHub-Flavoured Markdown** only: headings, paragraphs, lists, tables, links, emphasis, blockquotes, images and explicitly labelled fenced blocks. A standalone `---` separates slides; do not insert it as a decorative rule or inside the body accidentally. No empty slides.
 - **Every fenced block requires a language tag.** For unhighlighted output use `txt`, `text`, or `plaintext`; for source use a supported Prism language (`cpp`, `csharp`/`cs`, `java`, `python`, `javascript`, `typescript`, `sql`, `bash`, `powershell`, `json`, `yaml`, etc.). Check the current `code_fences.py` for supported aliases. An unknown labelled language falls back to plain text with a warning; an unlabelled fence is a compile error.
 - Mermaid diagrams use fenced `mermaid` with **raw Mermaid syntax only**. Prefer readable `flowchart LR` or `flowchart TD` for components and flows. Use `sequenceDiagram` only when source evidence supports ordering or participants. Keep graphs small enough to render on one slide. Mermaid theme is configured globally via `mermaid.theme` (`default`, `dark`, `forest`, `neutral`, `base`).
-- No raw HTML, inline scripts, HTML comments/directives, custom per-slide classes, indented code blocks, or Marp-only directives. The compiler is **Marpit-inspired, not full Marpit**.
+- No arbitrary raw HTML, inline scripts, custom per-slide classes, indented code blocks, or legacy Marp directives. Paired container comments `<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->` may be used for card layouts.
 - Local images, if used, must exist and be referenced relatively to `presentation.md` (`![Descriptive alt text](diagram.png)`). Supported formats: JPEG, PNG, SVG, WebP, GIF. No remote Markdown images; images are embedded as data URLs. Never write nonexistent image links.
 - Do not put `@import` or local file `url(...)` references in CSS; custom stylesheets are optional and governed by the deck-authoring skill.
 

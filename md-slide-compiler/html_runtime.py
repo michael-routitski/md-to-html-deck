@@ -10,7 +10,7 @@ from code_fences import CDN, MERMAID_VERSION, PRISM_VERSION, prism_components
 RUNTIME_JS = r"""
 (() => {
   'use strict';
-  const slides = [...document.querySelectorAll('.marpit > section')];
+  const slides = [...document.querySelectorAll('.deck > section.slide')];
   let current = 0;
   let scheduled = false;
   const diagnostic = (level, code, slide, message) => {
@@ -188,12 +188,12 @@ def assemble(slides: list[str], meta: dict, layout_css: str, theme_css: str,
         ]
         for lang in prism_components(languages):
             parts.append(f'  <script defer src="{prefix}prism-{lang}.min.js"></script>\n')
-    parts.extend(["</head>\n<body>\n", '  <div class="marpit">\n'])
+    parts.extend(["</head>\n<body>\n", '  <div class="deck">\n'])
     total = len(slides)
     for i, body in enumerate(slides, 1):
-        attr = f' data-marpit-pagination="{i}" data-marpit-pagination-total="{total}"' if meta.get("paginate", False) else ""
+        attr = f' data-page="{i}" data-total-pages="{total}"' if meta.get("paginate", False) else ""
         active = ' data-active="true"' if i == 1 else ""
-        parts.append(f'    <section{attr}{active}>\n')
+        parts.append(f'    <section class="slide"{attr}{active}>\n')
         if meta.get("header"):
             parts.append(f'      <header>{escape(meta["header"])}</header>\n')
         parts.append(body)
@@ -218,7 +218,7 @@ def assemble(slides: list[str], meta: dict, layout_css: str, theme_css: str,
         parts.append('        try { await mermaid.run({ nodes: [node] }); }\n')
         parts.append('        catch (err) {\n')
         parts.append('          node.textContent = original;\n')
-        parts.append("          const slide = [...document.querySelectorAll('.marpit > section')].indexOf(node.closest('section')) + 1;\n")
+        parts.append("          const slide = [...document.querySelectorAll('.deck > section.slide')].indexOf(node.closest('section')) + 1;\n")
         parts.append("          runtime.diagnostic('error', 'E_MERMAID_RENDER', slide, String(err));\n")
         parts.append('        }\n')
         parts.append('      }\n')

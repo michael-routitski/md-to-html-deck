@@ -11,19 +11,19 @@ The compiler is a deterministic, single-command Python application. Its input is
 
 The output is **one file, but not fully offline**. Do not describe it as zero-dependency HTML. The compiler may use Python packages installed once; the compiled document must require no Python and no local asset directory to view, provided network dependencies are available.
 
-**Non-goals:** exact Marp/Marpit implementation; arbitrary slide-layout DSL; per-slide CSS classes; arbitrary HTML authoring; PDF/print export; presenter view; server-side rendering; syntax validation of Mermaid using a separate engine; AI assistance at compile or view time; automatic text shrinking; a general-purpose browser UI framework.
+**Non-goals:** Marp/Marpit compatibility; arbitrary slide-layout DSL; arbitrary HTML authoring; PDF/print export; presenter view; server-side rendering; syntax validation of Mermaid using a separate engine; AI assistance at compile or view time; automatic text shrinking; a general-purpose browser UI framework.
 
-The `.marpit` class, `<section>` structure, and pagination attributes are deliberate *compatibility-inspired conventions*, not a warranty that arbitrary official Marp themes or Marp directives will work. A theme MUST conform to this project's CSS contract.
+The slide presentation model uses clean semantic HTML (`<div class="deck">`, `<section class="slide">`, and `data-page` / `data-total-pages` attributes). There is no dependency on Marpit, and Marpit comment directives or extensions are not supported. A theme MUST conform to this project's CSS contract.
 
 ## 2. Decision ledger and reconciliations
 
 | Decisions | Binding outcome |
 |---|---|
-| Q1–Q7 | Marpit-inspired semantic slides; CDN-backed single file; one visible slide; local CSS; fixed widescreen 16:9; strict overflow (no content scrolling/shrinking). |
+| Q1–Q7 | Clean semantic slides; CDN-backed single file; one visible slide; local CSS; fixed widescreen 16:9; strict overflow (no content scrolling/shrinking). |
 | Q8–Q17 | GFM; `---` slide delimiter; plain-text/Prism/Mermaid fence split; selective Prism loads; embedded JPEG/PNG/SVG/WebP/GIF; Markdown-relative images; global styles/directives; raw HTML forbidden; browser-console diagnostics. |
 | Q18–Q26 | Browser/CSS-owned responsive geometry; *two* local CSS inputs; proportional automatic media fitting; minimal keyboard controls; no visible controls; `python compile.py deck.md`; collect diagnostics; pinned CDN versions; no print/PDF commitment. |
-| Q27–Q35 | Both CSS paths supported in frontmatter, with generator-bundled fallback defaults when omitted; viewport/container-responsive typography; JS measures residual media space; preserve intrinsic aspect ratios; Marp-inspired directive names; compiler-resolved Prism dependency list; unknown language warning + plain text; reserved header/footer space; strict source validation. |
-| Q36–Q45 | Independent proportional media fitting; static validation only; forbid local assets referenced by CSS; allow approved CDN resources and HTTPS CSS URLs; Marpit pagination attributes; byte-reproducible output; internal code module; overwrite on success; reject unlabelled fences; Mermaid configuration in YAML. |
+| Q27–Q35 | Both CSS paths supported in frontmatter, with generator-bundled fallback defaults when omitted; viewport/container-responsive typography; JS measures residual media space; preserve intrinsic aspect ratios; compiler-resolved Prism dependency list; unknown language warning + plain text; reserved header/footer space; strict source validation. |
+| Q36–Q45 | Independent proportional media fitting; static validation only; forbid local assets referenced by CSS; allow approved CDN resources and HTTPS CSS URLs; pagination attributes; byte-reproducible output; internal code module; overwrite on success; reject unlabelled fences; Mermaid configuration in YAML. |
 
 **Reconciliations, now normative:**
 
@@ -127,8 +127,8 @@ Frontmatter is mandatory, begins at byte 0 (after an optional UTF-8 BOM), opens 
 
 | Key | Type | Required | Default / semantics |
 |---|---|---:|---|
-| `layout` | nonempty string, if present | No | Omitted: compiler-bundled `base.css`; otherwise a local Markdown-relative CSS path. Compiler extension, not a standard Marp key. |
-| `theme` | nonempty string, if present | No | Omitted: compiler-bundled `theme.css`; otherwise a local Markdown-relative CSS path. No theme identifiers or URLs. |
+| `layout` | nonempty string, if present | No | Omitted: compiler-bundled `base.css`; otherwise a local Markdown-relative CSS path. |
+| `theme` | nonempty string, if present | No | Omitted: compiler-bundled `theme.css`; otherwise a local Markdown-relative CSS path. |
 | `header` | string | No | Absent/empty means no `<header>`. Text only, HTML-escaped. |
 | `footer` | string | No | Absent/empty means no `<footer>`. Text only, HTML-escaped. |
 | `paginate` | boolean | No | `false`. Boolean must be YAML boolean, not quoted string. |
@@ -160,8 +160,25 @@ Allow `mermaid.theme` with values `default`, `dark`, `forest`, `neutral`, or `ba
 - A line containing exactly `---`, optionally surrounded by horizontal whitespace, separates slides **outside the opening frontmatter and fenced code**. It is not rendered as `<hr>`. The horizontal-rule forms `***` and `___` do **not** separate slides; they remain normal horizontal rules. Note: this is a deliberate deviation from generic Markdown parsing.
 - Slide boundaries must be determined token-aware, not by blind string replacement. A horizontal-rule-looking line in a fenced block, or otherwise part of protected Markdown syntax, is not a separator. A bare `---` line can no longer be used for a literal horizontal rule in slide content; use `***` instead.
 - Reject empty presentations (no non-whitespace content). Deliberately empty slides are permitted only between two nonempty slide segments? **No:** in v1, leading, adjacent, or trailing slide separators yielding an empty slide are fatal; this prevents accidental blank slides.
-- Treat standard inline HTML, raw HTML blocks, embedded `<script>`, `<style>`, `iframe`, and HTML comments with special Marpit directives as unsupported. Generic HTML comments may be silently discarded as previously agreed, but MUST never be executed or interpreted as slide directives. Explicit Marpit `_class`, `_backgroundColor`, or similar comment directives are fatal unsupported syntax. All ordinary user text and attributes are HTML-escaped.
-- Other Marp-specific extensions (background-image `![bg]`, split-background image modifiers, directives, speaker notes, CSS-scoped fragments) are unsupported. Recognised unsupported syntax should fail validation; do not treat bare words resembling directives as errors.
+- Treat standard inline HTML, raw HTML blocks, embedded `<script>`, `<style>`, and `<iframe>` as unsupported. All ordinary user text and attributes are HTML-escaped.
+- **Card containers & delimiters:** To support multi-card layouts and preserve content flow, paired HTML comments are supported for cards:
+  - `<!-- cards -->` ... `<!-- /cards -->`: Groups enclosed content into a `<div class="cards">...</div>` container.
+  - `<!-- card -->` ... `<!-- /card -->`: Groups enclosed content into an individual `<div class="card">...</div>` container.
+  - Cards may be nested inside a `cards` container:
+    ```markdown
+    <!-- cards -->
+    <!-- card -->
+    ### Card 1
+    Content inside card 1
+    <!-- /card -->
+    <!-- card -->
+    ### Card 2
+    Content inside card 2
+    <!-- /card -->
+    <!-- /cards -->
+    ```
+  - Unclosed or improperly nested card delimiters produce a compile-time validation error (`E_UNCLOSED_CONTAINER` / `E_NESTED_CONTAINER`).
+- Other generic HTML comments are silently discarded.
 - Rendering source syntax such as `[link](https://example.org)` is allowed. Relative Markdown *links* (as distinct from images) are passed through as safe relative references, and may not function when a single HTML file is moved; a warning is preferable. Reject `javascript:` and other executable URL schemes.
 - Task list checkboxes are rendered noninteractive (`disabled`) and do not create an application control.
 
@@ -169,7 +186,7 @@ Allow `mermaid.theme` with values `default`, `dark`, `forest`, `neutral`, or `ba
 
 | Source construct | HTML |
 |---|---|
-| Slide | Direct `<section>` inside `.marpit` |
+| Slide | Direct `<section class="slide">` inside `.deck` |
 | Heading | `<h1>` ... `<h6>` |
 | Paragraph | `<p>` |
 | Lists | `<ul>` / `<ol>` with `<li>` and nested lists |
@@ -178,11 +195,13 @@ Allow `mermaid.theme` with values `default`, `dark`, `forest`, `neutral`, or `ba
 | GFM table | `<table><thead>...` / `<tbody>...` |
 | Horizontal rule (`***`, `___`) | `<hr>` |
 | Inline Markdown image | `<img src="data:..." alt="...">` |
+| Cards group (`<!-- cards -->` ... `<!-- /cards -->`) | `<div class="cards">...</div>` |
+| Card (`<!-- card -->` ... `<!-- /card -->`) | `<div class="card">...</div>` |
 | Text fence (`txt`, `text`, `plaintext`) | `<pre>escaped text</pre>` |
 | Supported source language fence | `<pre class="language-x"><code class="language-x">escaped source</code></pre>` |
 | Mermaid fence | `<pre class="mermaid">escaped raw Mermaid source</pre>` |
 
-No custom typographic wrapper `<div>` is allowed around headings/paragraphs/lists. The `.marpit` wrapper is the sole sequence wrapper. An optional media-only wrapper is **not** necessary in v1; runtime identifies direct image/diagram nodes. No per-slide classes (Q14=A).
+No arbitrary HTML markup is allowed; only the supported semantic containers (`cards`, `card`) via clean delimiter comments. An optional media-only wrapper is **not** necessary in v1; runtime identifies direct image/diagram nodes. No per-slide classes (Q14=A).
 
 ## 7. Code fences and Prism
 
@@ -217,7 +236,7 @@ The compiler makes **no** network request to fetch Prism or Mermaid at compile t
 
 ## 9. HTML emission contract
 
-Emit a complete `<!doctype html>`, `<html lang="en">`, `<head>` with UTF-8 and viewport metadata, two **ordered** embedded `<style>` elements (resolved `layout` first, then resolved `theme`), optional pinned CDN dependencies, `<body>`, and a single `<div class="marpit">` containing one `<section>` per slide. Avoid generated timestamps and unstable IDs.
+Emit a complete `<!doctype html>`, `<html lang="en">`, `<head>` with UTF-8 and viewport metadata, two **ordered** embedded `<style>` elements (resolved `layout` first, then resolved `theme`), optional pinned CDN dependencies, `<body>`, and a single `<div class="deck">` containing `<section class="slide">` per slide. Avoid generated timestamps and unstable IDs.
 
 **Normative shape (illustrative content; not implementation code):**
 
@@ -232,14 +251,14 @@ Emit a complete `<!doctype html>`, `<html lang="en">`, `<head>` with UTF-8 and v
   <!-- conditional pinned Prism dependencies, in dependency order -->
 </head>
 <body>
-  <div class="marpit">
-    <section data-marpit-pagination="1" data-marpit-pagination-total="2">
+  <div class="deck">
+    <section class="slide" data-page="1" data-total-pages="2">
       <header>Trading Platform</header>
       <h1>Example</h1>
       <p>Illustrative content</p>
       <footer>Engineering</footer>
     </section>
-    <section data-marpit-pagination="2" data-marpit-pagination-total="2">
+    <section class="slide" data-page="2" data-total-pages="2">
       <header>Trading Platform</header>
       <pre class="mermaid">flowchart LR
 A--&gt;B</pre>
@@ -252,7 +271,7 @@ A--&gt;B</pre>
 ```
 
 - **Header/footer** elements are direct section children, inserted *before/after* semantic content respectively only if configured and nonempty. They contain escaped plain text, not Markdown-rendered HTML.
-- **Pagination:** if `paginate: true`, add `data-marpit-pagination="N"` and `data-marpit-pagination-total="T"` to each section. If `paginate: false`, omit both pagination attributes. `N` is 1-based and `T` is total slides. Theme draws pagination with `section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); }`; the runtime adds no visible counter or controls.
+- **Pagination:** if `paginate: true`, add `data-page="N"` and `data-total-pages="T"` to each section. If `paginate: false`, omit both pagination attributes. `N` is 1-based and `T` is total slides. Theme draws pagination with `section[data-page]::after { content: attr(data-page); }`; the runtime adds no visible counter or controls.
 - CSS IDs on the `<style>` tags are compiler-reserved; theme authors should not depend on modifying them.
 - Browser runtime must not create extra wrapper `div`s around slide contents. It may set element styles and internal state attributes required for visibility/measurement; those state attributes are not part of the theme's public styling contract.
 - If no Mermaid exists, do not reference Mermaid. If no Prism-required code exists, do not reference Prism. If neither exists, the deck's core navigation/runtime works without those CDNs (except remote CSS assets).
@@ -266,7 +285,7 @@ The resolved `layout` CSS (explicit or bundled default) owns slide viewport posi
 Minimum invariants:
 
 - Exactly one section is visibly presented in on-screen mode; hidden slides cannot intercept pointer or keyboard interactions. The runtime must still be able to measure/layout hidden slides for Mermaid and media fitting (temporary measurement state is allowed).
-- `.marpit` occupies the available viewport presentation stage. `section` uses `aspect-ratio:16/9` and stays fully within both viewport width and height. Content is clipped or flagged when outside bounds; do not scroll within a slide.
+- `.deck` occupies the available viewport presentation stage. `section.slide` uses `aspect-ratio:16/9` and stays fully within both viewport width and height. Content is clipped or flagged when outside bounds; do not scroll within a slide.
 - Establish stable, reserved header/footer/pagination lanes via CSS variables (recommended names: `--slide-header-space`, `--slide-footer-space`, `--slide-padding-x`, `--slide-padding-y`). Their actual values are supplied by the resolved layout CSS (including the bundled default), **not** hidden compiler constants. Header/footer must not overlap the main content box under conforming CSS.
 - The section is a CSS size-query container (or equivalent), allowing `cqw`/`cqh`-based typography. Browser support is defined for current evergreen Chromium/Firefox/Safari versions supporting modern container queries and ES modules.
 - Media elements always preserve aspect ratio and can shrink into remaining content space, never crop/stretch; do not grow small assets beyond intended display dimensions unless the theme explicitly provides a natural-width convention.
@@ -274,7 +293,7 @@ Minimum invariants:
 
 ### 10.2 Theme file — responsibility and constraints
 
-The resolved `theme` CSS (explicit or bundled default) owns colour, typography, margins, list/table/code styling, image/diagram aesthetics and header/footer/pagination appearance. Preferred selectors: `section`, `h1`–`h6`, `p`, `ul`, `ol`, `li`, `blockquote`, `table`, `th`, `td`, `pre`, `code`, `.token.*`, `img`, `pre.mermaid`, `.mermaid svg`, `header`, `footer`, and `section::after`.
+The resolved `theme` CSS (explicit or bundled default) owns colour, typography, margins, card layouts (`.cards`, `.card`), list/table/code styling, image/diagram aesthetics and header/footer/pagination appearance. Preferred selectors: `section`, `.slide`, `.cards`, `.card`, `h1`–`h6`, `p`, `ul`, `ol`, `li`, `blockquote`, `table`, `th`, `td`, `pre`, `code`, `.token.*`, `img`, `pre.mermaid`, `.mermaid svg`, `header`, `footer`, and `section::after`.
 
 **Do not** redefine geometry, slide visibility, viewport/root positioning or the runtime's fitting state. Stylesheets are embedded layout-first, theme-second; therefore this is a *documented contract*, not a CSS sandbox. Violations may cause browser overflow warnings, but compiler-side CSS semantic validation is intentionally limited.
 
@@ -284,7 +303,7 @@ Typography should use size-relative CSS units (`cqw`, `cqh`, `clamp()` where app
 
 - Use semantic selectors with low specificity. Avoid `!important` except where the layout must protect navigation/visibility invariants.
 - The layout CSS reserves a rectangular body region after header/footer/padding. The runtime measures actual rendered positions and can assign media-specific max dimensions or CSS custom properties; it must not mutate theme typography.
-- When `paginate: false`, the pagination pseudo-element must produce no text (including if a theme unconditionally defines `section::after`). Conforming themes should scope it to `[data-marpit-pagination]`.
+- When `paginate: false`, the pagination pseudo-element must produce no text (including if a theme unconditionally defines `section::after`). Conforming themes should scope it to `[data-page]`.
 
 ## 11. Browser runtime contract
 
@@ -327,7 +346,7 @@ For complex interleaved text/media, fitting need not solve a general constraint 
 
 ## 12. Static validation and diagnostics
 
-**Fatal compile-time examples:** malformed/nonmapping/duplicate-key YAML, absent required frontmatter, invalid explicitly specified `layout`/`theme`, missing referenced CSS or missing bundled default CSS, unknown frontmatter key, forbidden local CSS `url`, CSS `@import`, missing/unsafe/unsupported image, unlabeled code fence, unsupported explicit Marp directive, raw HTML block/inline markup, empty slide, input decoding error, unsafe URL scheme, or unsupported explicitly detected Markdown construct.
+**Fatal compile-time examples:** malformed/nonmapping/duplicate-key YAML, absent required frontmatter, invalid explicitly specified `layout`/`theme`, missing referenced CSS or missing bundled default CSS, unknown frontmatter key, forbidden local CSS `url`, CSS `@import`, missing/unsafe/unsupported image, unlabeled code fence, unclosed or improperly nested card container (`E_UNCLOSED_CONTAINER`), raw HTML block/inline markup, empty slide, input decoding error, unsafe URL scheme, or unsupported explicitly detected Markdown construct.
 
 **Nonfatal compile-time examples:** unknown labelled code-fence language (plain `<pre>`), relative Markdown hyperlink whose target is not guaranteed to remain portable, optional benign ignored HTML comments (if otherwise allowed by section 6).
 
@@ -360,7 +379,9 @@ Diagnostics must have stable machine-readable codes and human-readable explanati
 | A07 | `---` inside fenced code | Not treated as slide delimiter. |
 | A08 | `***` or `___` in content | Render `<hr>`, not a new slide. |
 | A09 | Leading/trailing/adjacent slide delimiters | Fatal empty-slide error. |
-| A10 | Unexpected raw HTML and Marpit comment directive | Fatal; no script or injected markup appears in output. |
+| A10 | Unexpected raw HTML or unsupported tag | Fatal; no script or arbitrary markup injected. |
+| A11 | Valid `<!-- cards -->` and `<!-- card -->` blocks | Rendered as `<div class="cards">` and `<div class="card">`. |
+| A12 | Unclosed or mismatched card container | Fatal `E_UNCLOSED_CONTAINER`. |
 
 ### B. Content and code fences
 
@@ -435,7 +456,7 @@ Do **not** generate implementation code until this specification is approved. Th
 1. The `layout` YAML key names the first CSS file and `theme` names the second. Both keys are optional under the newly approved default-styles amendment. The exact `layout` key name is a compiler-specific convention.
 2. Empty slides are treated as errors, even though Markdown could technically describe them.
 3. CSS `@import` is banned and CSS remote URLs are allowed; this makes the two explicit CSS inputs authoritative while still permitting CDN-hosted fonts.
-4. Generic HTML comments are discarded; HTML-comment Marpit directives are rejected. The distinction should be covered by parser tests.
+4. Paired HTML comments `<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->` designate structured card containers; other generic HTML comments are discarded.
 5. Mermaid's configuration surface is intentionally limited to `mermaid.theme` to avoid arbitrary dynamic configuration injection.
 6. Automatic independent fitting is best effort, not a guarantee of printable/readable diagrams on text-dense slides.
 7. Markdown local image paths are limited to the Markdown directory tree for portability and safety; this is stricter than “relative to Markdown” alone. If shared assets elsewhere are essential, this restriction should be revisited.
@@ -445,10 +466,9 @@ Do **not** generate implementation code until this specification is approved. Th
 
 ## 16. External normative references
 
-- Marpit's semantic slide sections and pagination conventions: https://marpit.marp.app/theme-css
 - Mermaid rendering API and explicit `mermaid.run()` lifecycle: https://mermaid.js.org/config/usage
 - Mermaid setup and `<pre class="mermaid">`: https://mermaid.js.org/intro/getting-started
 - PrismJS language grammars and aliases: https://prismjs.com/
 - GFM specification: https://github.github.com/gfm/
 
-Where this document contradicts Marpit, Mermaid examples or generic Markdown behavior, **this project's explicit contract takes precedence**, subject to using the third-party APIs as actually documented.
+Where this document contradicts Mermaid examples or generic Markdown behavior, **this project's explicit contract takes precedence**, subject to using the third-party APIs as actually documented.

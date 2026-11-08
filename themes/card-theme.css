@@ -6,134 +6,244 @@ section {
   font-size: clamp(11px, 1.62cqw, 30px);
   line-height: 1.38;
 }
-h1, h2, h3, h4 { margin: 0 0 .55em; letter-spacing: -.025em; line-height: 1.13; }
-h1 { color: #123c69; font-size: 3.85cqw; }
-h2 { color: #195e96; font-size: 2.75cqw; }
-h3 { color: #254f77; font-size: 2.1cqw; }
-p, ul, ol, blockquote { margin: 0 0 .65em; }
-ul, ol { padding-left: 1.35em; }
-li { margin: .12em 0; }
-a { color: #096db1; }
-blockquote { border-left: .22em solid #40a5d7; padding-left: 1em; color: #35546d; }
-hr { border: 0; border-top: 1px solid #bed2e8; margin: .8em 0; }
-pre { background: #16263b; color: #e5f1ff; border-radius: .32em; padding: .75em .95em; margin: .5em 0; overflow: hidden; font-size: .77em; line-height: 1.32; }
-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-p code, li code { background: #e1eaf5; color: #16456d; border-radius: .2em; padding: .1em .24em; }
-pre.mermaid { color: inherit; }
-table { border-collapse: collapse; width: 100%; font-size: .82em; margin: .55em 0; }
-th, td { border: 1px solid #c2d3e7; padding: .35em .6em; text-align: left; }
-th { background: #dce9f8; color: #16456d; }
-tr:nth-child(even) { background: #edf3fa; }
-header, footer { color: #7189a4; font-size: 1.07cqw; letter-spacing: .035em; }
-footer { padding-right: 3em; }
-section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); position: absolute; bottom: var(--slide-padding-y); right: var(--slide-padding-x); color: #7189a4; font-size: 1.05cqw; }
-.token.comment, .token.prolog { color: #8ca4bc; }
-.token.keyword, .token.atrule { color: #9ad2ff; }
-.token.string, .token.attr-value { color: #bbeca8; }
-.token.number, .token.boolean { color: #ffc58e; }
-.token.function, .token.class-name { color: #fff2b2; }
-.token.operator, .token.punctuation { color: #d5e4f4; }
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 .55em;
+  letter-spacing: -.025em;
+  line-height: 1.13;
+}
+
+h1 {
+  color: #123c69;
+  font-size: 3.85cqw;
+}
+
+h2 {
+  color: #195e96;
+  font-size: 2.75cqw;
+}
+
+h3 {
+  color: #254f77;
+  font-size: 2.1cqw;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  margin: 0 0 .65em;
+}
+
+ul,
+ol {
+  padding-left: 1.35em;
+}
+
+li {
+  margin: .12em 0;
+}
+
+a {
+  color: #096db1;
+}
+
+blockquote {
+  border-left: .22em solid #40a5d7;
+  padding-left: 1em;
+  color: #35546d;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #bed2e8;
+  margin: .8em 0;
+}
+
+pre {
+  background: #16263b;
+  color: #e5f1ff;
+  border-radius: .32em;
+  padding: .75em .95em;
+  margin: .5em 0;
+  overflow: hidden;
+  font-size: .77em;
+  line-height: 1.32;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+p code,
+li code {
+  background: #e1eaf5;
+  color: #16456d;
+  border-radius: .2em;
+  padding: .1em .24em;
+}
+
+pre.mermaid {
+  color: inherit;
+}
+
+.mermaid svg :is(.node, .cluster) :is(rect, polygon, circle, path),
+.mermaid svg [data-look="neo"] :is(.node, .cluster) :is(rect, polygon, circle, path) {
+  filter: none !important;
+}
+
+.mermaid svg .node :is(rect, polygon, circle, path),
+.mermaid svg [data-look="neo"].node :is(rect, polygon, circle, path) {
+  filter: none !important;
+  rx: 6px !important;
+  ry: 6px !important;
+  border-radius: 6px !important;
+  stroke: #123c69 !important;
+  stroke-width: 2px !important;
+  fill: #e8f1fc !important;
+}
+
+.mermaid svg .node .label :is(text, span, p) {
+  color: #123c69 !important;
+  fill: #123c69 !important;
+  font-weight: 500 !important;
+}
+
+.mermaid svg :is(.edgePaths .path, .flowchart-link) {
+  stroke: #123c69 !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid svg :is(.marker, .arrowheadPath) {
+  fill: #123c69 !important;
+  stroke: #123c69 !important;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .82em;
+  margin: .55em 0;
+}
+
+th,
+td {
+  border: 1px solid #c2d3e7;
+  padding: .35em .6em;
+  text-align: left;
+}
+
+th {
+  background: #dce9f8;
+  color: #16456d;
+}
+
+tr:nth-child(even) {
+  background: #edf3fa;
+}
+
+/* Header and footer meta text */
+header,
+footer {
+  color: #7189a4;
+  font-size: 0.85em;
+  letter-spacing: .035em;
+}
+
+footer {
+  padding-right: 3em;
+}
+
+section[data-page]::after {
+  content: attr(data-page);
+  position: absolute;
+  bottom: var(--slide-padding-y);
+  right: var(--slide-padding-x);
+  color: #7189a4;
+  font-size: 0.85em;
+}
+
+.token.comment,
+.token.prolog {
+  color: #8ca4bc;
+}
+
+.token.keyword,
+.token.atrule {
+  color: #9ad2ff;
+}
+
+.token.string,
+.token.attr-value {
+  color: #bbeca8;
+}
+
+.token.number,
+.token.boolean {
+  color: #ffc58e;
+}
+
+.token.function,
+.token.class-name {
+  color: #fff2b2;
+}
+
+.token.operator,
+.token.punctuation {
+  color: #d5e4f4;
+}
 
 /* ==========================================================================
-   Card deck mode: only slides containing direct-child <h3> headings.
-
-   Supported markdown pattern (max 6 cards per slide):
-     ## Slide title
-     ### Card one
-     A single paragraph, OR one list, OR one blockquote.
-     ### Card two
-     - One list
-     - With multiple items
-
-   Each H3 must be immediately followed by ONE block. The current compiler
-   emits no grouping wrapper, so multiple blocks per card cannot be grouped
-   reliably with CSS alone.
+   Card containers: clean layout using <!-- cards --> and <!-- card -->
    ========================================================================== */
 
-section:has(> h3) {
-  --card-bg: #ffffff;
-  --card-border: #b8cee5;
-  --card-accent: #0c79b6;
-  --card-gap: 1.3cqw;
+.cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: min-content;
-  column-gap: var(--card-gap);
-  row-gap: 0;
-  align-content: start;
+  grid-template-columns: repeat(auto-fit, minmax(20cqw, 1fr));
+  gap: 1.5cqw;
+  margin: 1cqw 0;
+  align-items: stretch;
 }
 
-/* Section title always spans both columns. Avoid heading margins becoming rows. */
-section:has(> h3) > :is(h1, h2) {
-  grid-column: 1 / -1;
-  margin-bottom: 1.15cqw;
-}
-
-section:has(> h3) > h3 {
-  margin: 0;
-  padding: 1.1cqw 1.35cqw .55cqw;
-  color: #12538d;
-  font-size: 1.95cqw;
-  line-height: 1.18;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-top: .28cqw solid var(--card-accent);
-  border-bottom: 0;
-  border-radius: .78cqw .78cqw 0 0;
-  min-width: 0;
-}
-
-section:has(> h3) > h3 + :is(p, ul, ol, blockquote) {
-  min-width: 0;
-  margin: 0 0 1.35cqw;
-  min-height: 6.5cqw;
-  padding: .3cqw 1.35cqw 1.25cqw;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-top: 0;
-  border-radius: 0 0 .78cqw .78cqw;
+.card {
+  background: #ffffff;
+  border: 1px solid #b8cee5;
+  border-top: .28cqw solid #0c79b6;
+  border-radius: .78cqw;
   box-shadow: 0 .35cqw 1cqw rgba(15, 58, 102, .08);
-  font-size: 1.48cqw;
+  padding: 1cqw 1.3cqw;
+  font-size: 0.75em;
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
-section:has(> h3) > h3 + :is(ul, ol) {
-  padding-left: 2.65cqw;
+.card > h3:first-child {
+  margin: 0 0 .5em;
+  color: #12538d;
+  font-size: 1.4em;
+  line-height: 1.2;
 }
 
-section:has(> h3) > h3 + blockquote {
-  border-left: 1px solid var(--card-border);
+.card > :last-child {
+  margin-bottom: 0;
+}
+
+.card ul,
+.card ol {
+  padding-left: 1.4em;
+  margin: 0 0 .5em;
+}
+
+.card li {
+  margin: .15em 0;
+}
+
+.card blockquote {
+  border-left: 2px solid #b8cee5;
   color: #3b5877;
+  padding-left: .8em;
+  margin: .5em 0;
 }
-
-/* Place the Nth H3 and its ONE body block into the same card column.
-   H3/title and body occupy consecutive rows to create one visual card.
-   First row starts at grid row 2, after the slide H1/H2. */
-section:has(> h3) > h3:nth-of-type(1),
-section:has(> h3) > h3:nth-of-type(1) + :is(p, ul, ol, blockquote) { grid-column: 1; }
-section:has(> h3) > h3:nth-of-type(1) { grid-row: 2; }
-section:has(> h3) > h3:nth-of-type(1) + :is(p, ul, ol, blockquote) { grid-row: 3; }
-section:has(> h3) > h3:nth-of-type(2),
-section:has(> h3) > h3:nth-of-type(2) + :is(p, ul, ol, blockquote) { grid-column: 2; }
-section:has(> h3) > h3:nth-of-type(2) { grid-row: 2; }
-section:has(> h3) > h3:nth-of-type(2) + :is(p, ul, ol, blockquote) { grid-row: 3; }
-section:has(> h3) > h3:nth-of-type(3),
-section:has(> h3) > h3:nth-of-type(3) + :is(p, ul, ol, blockquote) { grid-column: 1; }
-section:has(> h3) > h3:nth-of-type(3) { grid-row: 4; }
-section:has(> h3) > h3:nth-of-type(3) + :is(p, ul, ol, blockquote) { grid-row: 5; }
-section:has(> h3) > h3:nth-of-type(4),
-section:has(> h3) > h3:nth-of-type(4) + :is(p, ul, ol, blockquote) { grid-column: 2; }
-section:has(> h3) > h3:nth-of-type(4) { grid-row: 4; }
-section:has(> h3) > h3:nth-of-type(4) + :is(p, ul, ol, blockquote) { grid-row: 5; }
-section:has(> h3) > h3:nth-of-type(5),
-section:has(> h3) > h3:nth-of-type(5) + :is(p, ul, ol, blockquote) { grid-column: 1; }
-section:has(> h3) > h3:nth-of-type(5) { grid-row: 6; }
-section:has(> h3) > h3:nth-of-type(5) + :is(p, ul, ol, blockquote) { grid-row: 7; }
-section:has(> h3) > h3:nth-of-type(6),
-section:has(> h3) > h3:nth-of-type(6) + :is(p, ul, ol, blockquote) { grid-column: 2; }
-section:has(> h3) > h3:nth-of-type(6) { grid-row: 6; }
-section:has(> h3) > h3:nth-of-type(6) + :is(p, ul, ol, blockquote) { grid-row: 7; }
-
-/* A missing body block is intentionally not hidden: browser diagnostics can
-   expose overflow, and invalid card markup remains visible for correction. */

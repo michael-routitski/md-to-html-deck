@@ -7,8 +7,8 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-.marpit { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; background: #101824; }
-.marpit > section {
+.deck { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; background: #101824; }
+.deck > section.slide {
   grid-area: 1 / 1;
   position: relative;
   width: min(100vw, 177.777778vh);
@@ -23,7 +23,7 @@ html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
   visibility: hidden;
   pointer-events: none;
 }
-.marpit > section[data-active="true"] { visibility: visible; pointer-events: auto; }
+.deck > section.slide[data-active="true"] { visibility: visible; pointer-events: auto; }
 section > header, section > footer { position: absolute; left: var(--slide-padding-x); right: var(--slide-padding-x); }
 section > header { top: var(--slide-padding-y); }
 section > footer { bottom: var(--slide-padding-y); }

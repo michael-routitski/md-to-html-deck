@@ -4,11 +4,11 @@
 
 Compile a Markdown presentation into a standalone HTML deck.
 
-The format requirements of the input MD are based on Mapl convensions, so Mapl themes can be used with most functionality supported, but not all because this tool is intentionally kept simple.
+Slides are written in standard GitHub-Flavored Markdown with YAML frontmatter. Paired comment delimiters (`<!-- cards -->` / `<!-- /cards -->` and `<!-- card -->` / `<!-- /card -->`) can be used to structure card content while preserving natural document flow.
 
 The important minimum markdown format requirements are 
 - front matter contains custom theme, header/footer text and mermaid config for drawing diagrams.
-- the ruler marker `---` act as deck slide sepatator. 
+- the ruler marker `---` acts as deck slide separator. 
 
 To see what a basic sample output looks like, download and open `samples/simple-test/presentation.html` in the browser. Use arrows to go back and forward. It's produced from `samples/simple-test/presentation.md` source
 

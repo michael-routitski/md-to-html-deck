@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentation</title>
+  <style id="slide-layout">
+/* Structural contract: keep geometry and visibility in this file. */
+:root {
+  --slide-padding-x: min(3.8vw, 4.4vh);
+  --slide-padding-y: min(2.1vw, 3.4vh);
+  --slide-header-space: min(3.2vw, 5.6vh);
+  --slide-footer-space: min(3.2vw, 5.6vh);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+.deck { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; background: #101824; }
+.deck > section.slide {
+  grid-area: 1 / 1;
+  position: relative;
+  width: min(100vw, 177.777778vh);
+  aspect-ratio: 16 / 9;
+  max-width: 100vw;
+  max-height: 100vh;
+  container-type: size;
+  overflow: hidden;
+  padding: calc(var(--slide-padding-y) + var(--slide-header-space))
+           var(--slide-padding-x)
+           calc(var(--slide-padding-y) + var(--slide-footer-space));
+  visibility: hidden;
+  pointer-events: none;
+}
+.deck > section.slide[data-active="true"] { visibility: visible; pointer-events: auto; }
+section > header, section > footer { position: absolute; left: var(--slide-padding-x); right: var(--slide-padding-x); }
+section > header { top: var(--slide-padding-y); }
+section > footer { bottom: var(--slide-padding-y); }
+section img { max-width: 100%; height: auto; object-fit: contain; vertical-align: middle; }
+section pre.mermaid { max-width: 100%; padding: 0; overflow: visible; background: transparent; }
+section .mermaid svg { width: 100%; height: 100%; max-width: 100%; max-height: 100%; display: block; }
+
+  </style>
+  <style id="slide-theme">
+/* Visual theme: semantic selectors only; geometry belongs to base.css. */
+section {
+  background: #f5f8ff;
+  color: #16253b;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(11px, 1.62cqw, 30px);
+  line-height: 1.38;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 .55em;
+  letter-spacing: -.025em;
+  line-height: 1.13;
+}
+
+h1 {
+  color: #123c69;
+  font-size: 3.85cqw;
+}
+
+h2 {
+  color: #195e96;
+  font-size: 2.75cqw;
+}
+
+h3 {
+  color: #254f77;
+  font-size: 2.1cqw;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  margin: 0 0 .65em;
+}
+
+ul,
+ol {
+  padding-left: 1.35em;
+}
+
+li {
+  margin: .12em 0;
+}
+
+a {
+  color: #096db1;
+}
+
+blockquote {
+  border-left: .22em solid #40a5d7;
+  padding-left: 1em;
+  color: #35546d;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #bed2e8;
+  margin: .8em 0;
+}
+
+pre {
+  background: #16263b;
+  color: #e5f1ff;
+  border-radius: .32em;
+  padding: .75em .95em;
+  margin: .5em 0;
+  overflow: hidden;
+  font-size: .77em;
+  line-height: 1.32;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+p code,
+li code {
+  background: #e1eaf5;
+  color: #16456d;
+  border-radius: .2em;
+  padding: .1em .24em;
+}
+
+pre.mermaid {
+  color: inherit;
+}
+
+.mermaid svg :is(.node, .cluster) :is(rect, polygon, circle, path),
+.mermaid svg [data-look="neo"] :is(.node, .cluster) :is(rect, polygon, circle, path) {
+  filter: none !important;
+}
+
+.mermaid svg .node :is(rect, polygon, circle, path),
+.mermaid svg [data-look="neo"].node :is(rect, polygon, circle, path) {
+  filter: none !important;
+  rx: 6px !important;
+  ry: 6px !important;
+  border-radius: 6px !important;
+  stroke: #123c69 !important;
+  stroke-width: 2px !important;
+  fill: #e8f1fc !important;
+}
+
+.mermaid svg .node .label :is(text, span, p) {
+  color: #123c69 !important;
+  fill: #123c69 !important;
+  font-weight: 500 !important;
+}
+
+.mermaid svg :is(.edgePaths .path, .flowchart-link) {
+  stroke: #123c69 !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid svg :is(.marker, .arrowheadPath) {
+  fill: #123c69 !important;
+  stroke: #123c69 !important;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .82em;
+  margin: .55em 0;
+}
+
+th,
+td {
+  border: 1px solid #c2d3e7;
+  padding: .35em .6em;
+  text-align: left;
+}
+
+th {
+  background: #dce9f8;
+  color: #16456d;
+}
+
+tr:nth-child(even) {
+  background: #edf3fa;
+}
+
+/* Header and footer meta text */
+header,
+footer {
+  color: #7189a4;
+  font-size: 0.85em;
+  letter-spacing: .035em;
+}
+
+footer {
+  padding-right: 3em;
+}
+
+section[data-page]::after {
+  content: attr(data-page);
+  position: absolute;
+  bottom: var(--slide-padding-y);
+  right: var(--slide-padding-x);
+  color: #7189a4;
+  font-size: 0.85em;
+}
+
+.token.comment,
+.token.prolog {
+  color: #8ca4bc;
+}
+
+.token.keyword,
+.token.atrule {
+  color: #9ad2ff;
+}
+
+.token.string,
+.token.attr-value {
+  color: #bbeca8;
+}
+
+.token.number,
+.token.boolean {
+  color: #ffc58e;
+}
+
+.token.function,
+.token.class-name {
+  color: #fff2b2;
+}
+
+.token.operator,
+.token.punctuation {
+  color: #d5e4f4;
+}
+
+/* ==========================================================================
+   Card containers: clean layout using <!-- cards --> and <!-- card -->
+   ========================================================================== */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20cqw, 1fr));
+  gap: 1.5cqw;
+  margin: 1cqw 0;
+  align-items: stretch;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #b8cee5;
+  border-top: .28cqw solid #0c79b6;
+  border-radius: .78cqw;
+  box-shadow: 0 .35cqw 1cqw rgba(15, 58, 102, .08);
+  padding: 1cqw 1.3cqw;
+  font-size: 0.75em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.card > h3:first-child {
+  margin: 0 0 .5em;
+  color: #12538d;
+  font-size: 1.4em;
+  line-height: 1.2;
+}
+
+.card > :last-child {
+  margin-bottom: 0;
+}
+
+.card ul,
+.card ol {
+  padding-left: 1.4em;
+  margin: 0 0 .5em;
+}
+
+.card li {
+  margin: .15em 0;
+}
+
+.card blockquote {
+  border-left: 2px solid #b8cee5;
+  color: #3b5877;
+  padding-left: .8em;
+  margin: .5em 0;
+}
+  </style>
+  <script>window.Prism = window.Prism || {}; window.Prism.manual = true;</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+  <div class="deck">
+    <section class="slide" data-page="1" data-total-pages="3" data-active="true">
+      <header>MARKDOWN SLIDE COMPILER</header>
+<h2>Markdown → HTML Slides</h2>
+<p>Text before the cards</p>
+<div class="cards">
+<div class="card">
+<h3>Card 1</h3>
+<ul>
+<li>List item should be inside the card</li>
+<li>List item should be inside the card</li>
+</ul>
+</div>
+<div class="card">
+<h3>Card 2</h3>
+<ul>
+<li>List item should be inside the card</li>
+<li>List item should be inside the card</li>
+</ul>
+</div>
+</div>
+<p>Text After the cards</p>
+      <footer>Example presentation with cards</footer>
+    </section>
+    <section class="slide" data-page="2" data-total-pages="3">
+      <header>MARKDOWN SLIDE COMPILER</header>
+<h2>The pipeline</h2>
+<p>Two boxes connected by a single arrow:</p>
+<pre class="mermaid">flowchart LR
+    A[Markdown input] --&gt; B[HTML slide deck]
+</pre>
+      <footer>Example presentation with cards</footer>
+    </section>
+    <section class="slide" data-page="3" data-total-pages="3">
+      <header>MARKDOWN SLIDE COMPILER</header>
+<h2>Code and content</h2>
+<p>A Python code fence gets <strong>Prism</strong> highlighting automatically:</p>
+<pre class="language-python"><code class="language-python">from pathlib import Path
+print(Path("presentation.html").exists())
+</code></pre>
+<table>
+<thead>
+<tr><th>Input</th><th>Output</th></tr>
+</thead>
+<tbody>
+<tr><td>Markdown + CSS</td><td>Portable HTML file</td></tr>
+<tr><td>Mermaid definition</td><td>Browser-rendered SVG</td></tr>
+</tbody>
+</table>
+<p>Use <strong>Right Arrow</strong> or <strong>Space</strong> to advance and <strong>Left Arrow</strong> to go back.</p>
+      <footer>Example presentation with cards</footer>
+    </section>
+  </div>
+  <script>
+
+(() => {
+  'use strict';
+  const slides = [...document.querySelectorAll('.deck > section.slide')];
+  let current = 0;
+  let scheduled = false;
+  const diagnostic = (level, code, slide, message) => {
+    console[level](`[${code}] slide ${slide}: ${message}`);
+  };
+
+  function activate(n) {
+    current = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((slide, i) => {
+      const active = i === current;
+      slide.dataset.active = String(active);
+      slide.setAttribute('aria-hidden', String(!active));
+      slide.inert = !active;
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return;
+    const action = {
+      ArrowRight: current + 1, PageDown: current + 1, ' ': current + 1,
+      ArrowLeft: current - 1, PageUp: current - 1, Home: 0, End: slides.length - 1,
+    };
+    if (!(e.key in action)) return;
+    e.preventDefault();
+    activate(action[e.key]);
+  });
+  activate(0);
+
+  function dimensions(el, usableWidth) {
+    if (el.matches('img')) {
+      const w = el.naturalWidth || el.getBoundingClientRect().width;
+      const h = el.naturalHeight || el.getBoundingClientRect().height;
+      if (!(w > 0 && h > 0)) return null;
+      const pref = Math.min(w, usableWidth);
+      return { w: pref, h: pref * h / w, ratio: w / h };
+    }
+    const svg = el.querySelector('svg');
+    if (!svg) return null;
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    const rect = svg.getBoundingClientRect();
+    const w = vb && vb.width > 0 ? vb.width : rect.width;
+    const h = vb && vb.height > 0 ? vb.height : rect.height;
+    if (!(w > 0 && h > 0)) return null;
+    const pref = Math.min(w, usableWidth);
+    return { w: pref, h: pref * h / w, ratio: w / h };
+  }
+
+  function fit(slide, slideIndex) {
+    const style = getComputedStyle(slide);
+    const paddingTop = parseFloat(style.paddingTop) || 0;
+    const paddingBottom = parseFloat(style.paddingBottom) || 0;
+    const paddingLeft = parseFloat(style.paddingLeft) || 0;
+    const paddingRight = parseFloat(style.paddingRight) || 0;
+    const usableHeight = Math.max(0, slide.clientHeight - paddingTop - paddingBottom);
+    const usableWidth = Math.max(0, slide.clientWidth - paddingLeft - paddingRight);
+    const media = [...slide.querySelectorAll('img, pre.mermaid')];
+
+    // Reset prior fit sizes before re-measuring on resize or font changes.
+    media.forEach(el => {
+      el.style.removeProperty('width');
+      el.style.removeProperty('height');
+      el.style.removeProperty('max-height');
+    });
+    const items = media.map(el => ({ el, dims: dimensions(el, usableWidth) }));
+    for (const item of items) {
+      if (!item.dims) {
+        if (!item.el.matches('pre.mermaid') || item.el.querySelector('svg')) {
+          diagnostic('warn', 'W_MEDIA_GEOMETRY', slideIndex, 'Media has no measurable dimensions');
+        }
+        continue;
+      }
+      item.el.style.width = `${item.dims.w}px`;
+      item.el.style.height = `${item.dims.h}px`;
+    }
+
+    // Measure normal-flow content, including mixed text and media.
+    const content = [...slide.children].filter(x => !x.matches('header, footer'));
+    if (content.length && items.length) {
+      const top = Math.min(...content.map(x => x.getBoundingClientRect().top));
+      const bottom = Math.max(...content.map(x => x.getBoundingClientRect().bottom));
+      const used = Math.max(0, bottom - top);
+      const prefTotal = items.reduce((sum, x) => sum + (x.dims ? x.dims.h : 0), 0);
+      const nonMedia = Math.max(0, used - prefTotal);
+      const allocated = Math.max(0, usableHeight - nonMedia);
+      const factor = prefTotal > 0 ? Math.min(1, allocated / prefTotal) : 1;
+      for (const item of items) {
+        if (!item.dims) continue;
+        const h = Math.max(0, item.dims.h * factor);
+        const w = Math.max(0, h * item.dims.ratio);
+        item.el.style.width = `${w}px`;
+        item.el.style.height = `${h}px`;
+      }
+    }
+
+    const sRect = slide.getBoundingClientRect();
+    const limits = {
+      left: sRect.left + paddingLeft, right: sRect.right - paddingRight,
+      top: sRect.top + paddingTop, bottom: sRect.bottom - paddingBottom,
+    };
+    let extraX = 0, extraY = 0;
+    for (const item of slide.querySelectorAll('h1,h2,h3,h4,h5,h6,p,ul,ol,blockquote,table,pre,hr,img')) {
+      const r = item.getBoundingClientRect();
+      if (!r.width && !r.height) continue;
+      extraX = Math.max(extraX, limits.left - r.left, r.right - limits.right, item.scrollWidth - item.clientWidth);
+      extraY = Math.max(extraY, limits.top - r.top, r.bottom - limits.bottom, item.scrollHeight - item.clientHeight);
+    }
+    if (extraX > 8 || extraY > 8) {
+      diagnostic('warn', 'W_SLIDE_OVERFLOW', slideIndex,
+        `content exceeds body region by ${Math.ceil(extraX)}px horizontally, ${Math.ceil(extraY)}px vertically`);
+    }
+  }
+
+  function recompute() {
+    for (let i = 0; i < slides.length; ++i) fit(slides[i], i + 1);
+  }
+  function schedule() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      recompute();
+    });
+  }
+  window.addEventListener('resize', schedule, { passive: true });
+  const ready = (async () => {
+    // The runtime script appears before deferred CDN scripts execute. Wait for
+    // DOMContentLoaded so Prism core and grammars are ready before highlighting.
+    if (document.readyState === 'loading') {
+      await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
+    }
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; }
+      catch (err) { console.warn('[W_FONT_READY]', err); }
+    }
+    await Promise.all([...document.images].map(img => {
+      if (img.complete) return Promise.resolve();
+      return img.decode ? img.decode().catch(() => {}) : new Promise(resolve => {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
+    if (document.querySelector('pre[class*="language-"]')) {
+      if (window.Prism && typeof window.Prism.highlightAll === 'function') {
+        window.Prism.highlightAll();
+      } else {
+        console.error('[E_PRISM_CDN] Prism scripts unavailable. Source code remains readable.');
+      }
+    }
+    schedule();
+  })();
+  if (document.fonts && document.fonts.addEventListener) {
+    document.fonts.addEventListener('loadingdone', schedule);
+  }
+  window.__slideRuntime = { ready, schedule, diagnostic };
+})();
+
+  </script>
+  <script type="module">
+    const url = "https://cdn.jsdelivr.net/npm/mermaid@12.0.0/dist/mermaid.esm.min.mjs";
+    const runtime = window.__slideRuntime;
+    try {
+      await runtime.ready;
+      const { default: mermaid } = await import(url);
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: "default" });
+      const nodes = [...document.querySelectorAll('pre.mermaid')];
+      for (const node of nodes) {
+        const original = node.textContent;
+        try { await mermaid.run({ nodes: [node] }); }
+        catch (err) {
+          node.textContent = original;
+          const slide = [...document.querySelectorAll('.deck > section.slide')].indexOf(node.closest('section')) + 1;
+          runtime.diagnostic('error', 'E_MERMAID_RENDER', slide, String(err));
+        }
+      }
+      runtime.schedule();
+    } catch (err) { console.error(`[E_MERMAID_CDN] Could not import ${url}`, err); }
+  </script>
+</body>
+</html>

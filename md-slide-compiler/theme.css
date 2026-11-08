@@ -26,7 +26,7 @@ th { background: #dce9f8; color: #16456d; }
 tr:nth-child(even) { background: #edf3fa; }
 header, footer { color: #7189a4; font-size: 1.07cqw; letter-spacing: .035em; }
 footer { padding-right: 3em; }
-section[data-marpit-pagination]::after { content: attr(data-marpit-pagination); position: absolute; bottom: var(--slide-padding-y); right: var(--slide-padding-x); color: #7189a4; font-size: 1.05cqw; }
+section[data-page]::after { content: attr(data-page); position: absolute; bottom: var(--slide-padding-y); right: var(--slide-padding-x); color: #7189a4; font-size: 1.05cqw; }
 .token.comment, .token.prolog { color: #8ca4bc; }
 .token.keyword, .token.atrule { color: #9ad2ff; }
 .token.string, .token.attr-value { color: #bbeca8; }
